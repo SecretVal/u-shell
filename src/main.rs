@@ -31,6 +31,17 @@ fn main() -> ! {
             },
         },
     );
+    commands.insert(
+        "help".to_string(),
+        Command {
+            desc: "Print help".to_string(),
+            action: |_| {
+                for cmd in commands.values() {
+                    println!("{:?}", cmd);
+                }
+            },
+        },
+    );
     loop {
         let mut handler = stdin().lock();
         let _ = stdout().write(b"->");
@@ -46,6 +57,7 @@ fn main() -> ! {
                     let _ = stdout().flush();
                 },
             })
+            // TODO: implement args
             .action)(vec![]);
     }
 }

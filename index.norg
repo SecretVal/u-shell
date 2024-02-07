@@ -1,0 +1,42 @@
+* Problems
+** 1.
+   Struct: 
+   @code rust
+   #[derive(Debug)]
+   struct Command {
+       // implement later
+       desc: String,
+       action: fn(args: Vec<String>),
+   }
+   @end
+   Hashmap: 
+   @code rust
+   let mut commands: HashMap<String, Command> = HashMap::new();
+   @end
+   Example Command: 
+   @code rust
+   commands.insert(
+       "clear".to_string(),
+       Command {
+           desc: "Clear the screen".to_string(),
+           action: |_| {
+               // TODO: Look into this
+               let _ = stdout().write(format!("{esc}[2J{esc}[1;1H", esc = 27 as char).as_bytes());
+               let _ = stdout().flush();
+           },
+       },
+   );
+   @end
+   @code rust 
+   commands.insert(
+       "help".to_string(),
+       Command {
+           desc: "Print help".to_string(),
+           action: |_| {
+               for cmd in commands.values() {
+                   println!("{:?}", cmd);
+               }
+           },
+       },
+   );
+   @end
