@@ -1,50 +1,51 @@
-use std::io::{stdin, stdout, BufRead, Write};
+use std::{
+    collections::HashMap,
+    io::{stdin, stdout, BufRead, Write},
+};
 
 #[derive(Debug)]
 struct Command {
-    name: String,
     desc: String,
-    action: fn(),
-}
-impl Command {
-    fn run(&self) {
-        (self.action)();
-    }
+    action: fn(args: Vec<String>),
 }
 fn main() -> ! {
-    let commands: Vec<Command> = vec![
+    let mut commands: HashMap<String, Command> = HashMap::new();
+    commands.insert(
+        "clear".to_string(),
         Command {
-            name: "clear".to_string(),
             desc: "Clear the screen".to_string(),
-            action: || {
+            action: |_| {
                 // TODO: Look into this
                 let _ = stdout().write(format!("{esc}[2J{esc}[1;1H", esc = 27 as char).as_bytes());
                 let _ = stdout().flush();
             },
         },
+    );
+    commands.insert(
+        "ping".to_string(),
         Command {
-            name: "ping".to_string(),
-            desc: "say pong".to_string(),
-            action: || {
+            desc: "Say pong".to_string(),
+            action: |_| {
                 let _ = stdout().write(b"pong\n");
                 let _ = stdout().flush();
             },
         },
-    ];
+    );
     loop {
         let mut handler = stdin().lock();
-        let _ = stdout().write(b"-> ");
+        let _ = stdout().write(b"->");
         let _ = stdout().flush();
         let mut buffer = String::new();
         let _ = handler.read_line(&mut buffer);
-        for cmd in &commands {
-            if cmd.name == buffer.trim() {
-                cmd.run();
-            }
-            if buffer.trim() == "help".to_string() {
-                let _ = stdout().write(format!("{}: {}\n", cmd.name, cmd.desc).as_bytes());
-                let _ = stdout().flush();
-            }
-        }
+        let command = commands.get(buffer.trim());
+        (command
+            .unwrap_or(&Command {
+                desc: "NOT_FOUND".to_string(),
+                action: |_| {
+                    let _ = stdout().write(b"Command not found.\n");
+                    let _ = stdout().flush();
+                },
+            })
+            .action)(vec![]);
     }
 }
