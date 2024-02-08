@@ -7,9 +7,9 @@ use std::{
 struct Command {
     name: String,
     desc: String,
-    action: fn(args: Vec<String>, commmands: HashMap<String, Command>),
+    action: fn(args: Vec<String>, commmands: HashMap<String, Command>) -> bool,
 }
-fn main() -> ! {
+fn main() {
     let mut commands: HashMap<String, Command> = HashMap::new();
     commands.insert(
         "clear".to_string(),
@@ -20,6 +20,7 @@ fn main() -> ! {
                 // TODO: Look into this
                 let _ = stdout().write(format!("{esc}[2J{esc}[1;1H", esc = 27 as char).as_bytes());
                 let _ = stdout().flush();
+                return false;
             },
         },
     );
@@ -31,6 +32,7 @@ fn main() -> ! {
             action: |_, _| {
                 let _ = stdout().write(b"pong\n");
                 let _ = stdout().flush();
+                return false;
             },
         },
     );
@@ -44,23 +46,36 @@ fn main() -> ! {
                     let _ = stdout().write(format!("{}: {}\n", cmd.name, cmd.desc).as_bytes());
                     let _ = stdout().flush();
                 }
+                return false;
             },
         },
     );
-    loop {
+    commands.insert(
+        "exit".to_string(),
+        Command {
+            name: "exit".to_string(),
+            desc: "Quit the shell".to_string(),
+            action: |_, _| {
+                return true;
+            },
+        },
+    );
+    let mut exit = false;
+    while !exit {
         let mut handler = stdin().lock();
         let _ = stdout().write(b"->");
         let _ = stdout().flush();
         let mut buffer = String::new();
         let _ = handler.read_line(&mut buffer);
         let command = &commands.get(buffer.trim());
-        (command
+        exit = (command
             .unwrap_or(&Command {
                 name: "NOT_FOUND".to_string(),
                 desc: "NOT_FOUND".to_string(),
                 action: |_, _| {
                     let _ = stdout().write(b"Command not found.\n");
                     let _ = stdout().flush();
+                    return false;
                 },
             })
             // TODO: implement args
