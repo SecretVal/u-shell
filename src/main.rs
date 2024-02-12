@@ -1,3 +1,4 @@
+mod lexer;
 mod math;
 use std::{
     collections::HashMap,
