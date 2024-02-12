@@ -87,11 +87,11 @@ fn main() {
         let mut handler = stdin().lock();
         let _ = stdout().write(prompt.as_bytes());
         let _ = stdout().flush();
-        let mut buffer = String::new();
-        let _ = handler.read_line(&mut buffer);
-        let command = &commands.get(buffer.trim());
-
-        let mut args = buffer.split(" ").into_iter().collect::<Vec<&str>>();
+        let mut input = String::new();
+        let _ = handler.read_line(&mut input);
+        let command: Vec<&str> = input.split_whitespace().collect();
+        let command = &commands.get(command[0]);
+        let mut args = input.split(" ").into_iter().collect::<Vec<&str>>();
         args.remove(0);
         (exit, commands, prompt) = (command
             .unwrap_or(&Command {

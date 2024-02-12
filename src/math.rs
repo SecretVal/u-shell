@@ -1,5 +1,8 @@
 use crate::Command;
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    io::{stdout, Write},
+};
 
 pub fn add(mut commands: HashMap<String, Command>) -> HashMap<String, Command> {
     commands.insert(
@@ -7,9 +10,21 @@ pub fn add(mut commands: HashMap<String, Command>) -> HashMap<String, Command> {
         Command {
             name: "add".to_string(),
             desc: "add 1 2".to_string(),
-            action: |_, commands: HashMap<String, Command>, prompt: String| {
-                println!("3");
-                return (false, commands, prompt);
+            action: |args: Vec<&str>, commands: HashMap<String, Command>, prompt: String| {
+                if args.len() == 2 {
+                    let _ = stdout().write(
+                        format!(
+                            "{}\n",
+                            args[0].trim().parse::<i32>().unwrap()
+                                + args[1].trim().parse::<i32>().unwrap()
+                        )
+                        .as_bytes(),
+                    );
+                    let _ = stdout().flush();
+                    return (false, commands, prompt);
+                } else {
+                    return (false, commands, prompt);
+                }
             },
         },
     );
